@@ -1,0 +1,12 @@
+[package]
+name = "natural-date-parser"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "A parser that converts natural language date and time expressions into Rust-compatible DateTime formats."
+
+
+[dependencies]
+anyhow = "1.0.92"
+pest = "2.7.14"
+pest_derive = "2.7.14"
