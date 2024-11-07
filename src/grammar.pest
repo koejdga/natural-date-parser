@@ -1,3 +1,20 @@
-field = { (ASCII_DIGIT | "." | "-")+ }
-record = { field ~ ("," ~ field)* }
-file = { SOI ~ (record ~ ("\r\n" | "\n"))* ~ EOI }
+WHITESPACE = _{ " " | "\t" }
+
+date_expression = { SOI ~ (relative_date | relative_term | specific_day_and_time | specific_day | specific_time | future_time) ~ EOI }
+
+relative_date = { (next_or_last ~ specific_day) }
+relative_term = { "tomorrow" | "today" | "yesterday" }
+specific_day_and_time = { specific_day ~ "at" ~ specific_time }
+specific_day = { "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" }
+specific_time = { hour ~ ":" ~ minute ~ am_pm }
+future_time = { "in" ~ duration }
+
+next_or_last = { "next" | "last" | "this" }
+
+hour = { ASCII_DIGIT+ }
+minute = { ASCII_DIGIT+ }
+am_pm = { "AM" | "PM" }
+
+duration = { number ~ time_unit }
+number = { ASCII_DIGIT+ }
+time_unit = { "days" | "day" | "weeks" | "week" | "months" | "month" | "years" | "year" }
