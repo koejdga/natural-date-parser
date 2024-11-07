@@ -7,6 +7,6 @@ description = "A parser that converts natural language date and time expressions
 
 
 [dependencies]
-anyhow = "1.0.92"
+anyhow = "1.0.93"
 pest = "2.7.14"
 pest_derive = "2.7.14"
