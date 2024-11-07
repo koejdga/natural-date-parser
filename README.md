@@ -1,11 +1,8 @@
 # Natural Date Parser
 
-- Заголовок
-- Короткий опис
-- Картинка
-- Приклад коду
+## Brief Description
 
-## Overview
+A parser that converts natural language date and time expressions into Rust-compatible DateTime formats.
 
 **Natural Date Parser** is a Rust project designed to parse human-friendly, natural language date and time expressions, such as "next Monday," "tomorrow at 5 PM," or "3 weeks from now." This parser converts these expressions into structured `DateTime` objects, making them usable in scheduling applications, reminders, or other time-based software.
 
@@ -38,12 +35,18 @@ The output `DateTime` values can be used in a variety of applications:
 
 ## Getting Started
 
-To start using **Natural Date Parser**, add the project dependencies (such as Pest and Chrono) and include the main parser function. Sample usage and API details are in the documentation.
+To start using **Natural Date Parser**, you can use [crate](https://crates.io/crates/natural-date-parser) on crates.io
 
 ### Example Usage
 
 ```rust
-let input = "next Monday at 8 AM";
-let parsed_date = natural_date_parser::parse(input);
-println!("Parsed date: {:?}", parsed_date);
+fn main() -> anyhow::Result<()> {
+    let pair = Grammar::parse(Rule::date_expression, "next Monday")?
+        .next()
+        .ok_or_else(|| anyhow!("no pair"))?;
+    dbg!(pair);
+    Ok(())
+}
 ```
+
+![alt text](image.png)
