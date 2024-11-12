@@ -1,6 +1,6 @@
 # Natural Date Parser
 
-- Crates: https://crates.io/crates/natural-date-parser
+- Crates: https://docs.rs/natural-date-parser/0.1.2
 - Docs: https://docs.rs/natural-date-parser/0.1.1/natural_date_parser/
 
 ## Brief Description
