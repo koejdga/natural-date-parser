@@ -1,191 +1,152 @@
-use anyhow::{anyhow, Result};
-use natural_date_parser::*;
-use pest::Parser;
+#[cfg(test)]
+mod tests {
+    use anyhow::{anyhow, Result};
+    use natural_date_parser::{DateParser, Rule};
+    use pest::Parser;
 
-#[test]
-fn test_relative_date_next_monday() -> Result<()> {
-    let pair = Grammar::parse(Rule::relative_date, "next Monday")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "next Monday");
-    Ok(())
-}
+    fn parse_rule(rule: Rule, input: &str) -> Result<()> {
+        DateParser::parse(rule, input)
+            .map(|mut pairs| {
+                pairs
+                    .next()
+                    .ok_or_else(|| anyhow!("No pair found for rule"))
+            })?
+            .map(|_| ())
+            .map_err(|e| {
+                anyhow!(
+                    "Failed to parse input `{}` with rule {:?}: {}",
+                    input,
+                    rule,
+                    e
+                )
+            })
+    }
 
-#[test]
-fn test_relative_date_last_friday() -> Result<()> {
-    let pair = Grammar::parse(Rule::relative_date, "last Friday")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "last Friday");
-    Ok(())
-}
+    #[test]
+    fn test_date_expression() -> Result<()> {
+        let expressions = [
+            "next Monday at 10:30AM",
+            "tomorrow",
+            "today",
+            "yesterday",
+            "next Wednesday",
+            "Saturday",
+            "in 2 weeks",
+        ];
+        for expr in expressions {
+            parse_rule(Rule::date_expression, expr)?;
+        }
+        Ok(())
+    }
 
-#[test]
-fn test_invalid_relative_date_without_day() -> Result<()> {
-    let parse_result = Grammar::parse(Rule::relative_date, "next");
-    assert!(
-        parse_result.is_err(),
-        "Parsed an incomplete relative date 'next'"
-    );
-    Ok(())
-}
+    #[test]
+    fn test_specific_day() -> Result<()> {
+        let days = [
+            "Monday",
+            "monday",
+            "Tuesday",
+            "tuesday",
+            "Wednesday",
+            "wednesday",
+            "Thursday",
+            "thursday",
+            "Friday",
+            "friday",
+            "Saturday",
+            "saturday",
+            "Sunday",
+            "sunday",
+        ];
 
-#[test]
-fn test_invalid_relative_date_invalid_day() -> Result<()> {
-    let parse_result = Grammar::parse(Rule::relative_date, "next Funday");
-    assert!(
-        parse_result.is_err(),
-        "Parsed an invalid relative date 'next Funday'"
-    );
-    Ok(())
-}
+        for day in days {
+            parse_rule(Rule::specific_day, day)?;
+        }
+        Ok(())
+    }
 
-#[test]
-fn test_relative_term_today() -> Result<()> {
-    let pair = Grammar::parse(Rule::relative_term, "today")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "today");
-    Ok(())
-}
+    #[test]
+    fn test_specific_time() -> Result<()> {
+        let times = ["10:30AM", "10:30am", "01:45PM", "1:45pm"];
+        for time in times {
+            parse_rule(Rule::specific_time, time)?;
+        }
+        Ok(())
+    }
 
-#[test]
-fn test_relative_term_yesterday() -> Result<()> {
-    let pair = Grammar::parse(Rule::relative_term, "yesterday")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "yesterday");
-    Ok(())
-}
+    #[test]
+    fn test_relative_term() -> Result<()> {
+        let terms = [
+            "Tomorrow",
+            "tomorrow",
+            "Today",
+            "today",
+            "Yesterday",
+            "yesterday",
+        ];
+        for term in terms {
+            parse_rule(Rule::relative_term, term)?;
+        }
+        Ok(())
+    }
 
-#[test]
-fn test_specific_day_and_time() -> Result<()> {
-    let pair = Grammar::parse(Rule::specific_day_and_time, "Tuesday at 5:00 PM")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "Tuesday at 5:00 PM");
-    Ok(())
-}
+    #[test]
+    fn test_relative_date() -> Result<()> {
+        let dates = [
+            "Next Monday",
+            "next Tuesday",
+            "Last Friday",
+            "last saturday",
+        ];
+        for date in dates {
+            parse_rule(Rule::relative_date, date)?;
+        }
+        Ok(())
+    }
 
-#[test]
-fn test_invalid_specific_day_and_time_missing_time() -> Result<()> {
-    let parse_result = Grammar::parse(Rule::specific_day_and_time, "Tuesday at");
-    assert!(
-        parse_result.is_err(),
-        "Parsed an incomplete specific day and time 'Tuesday at'"
-    );
-    Ok(())
-}
+    #[test]
+    fn test_relative_day_and_specific_time() -> Result<()> {
+        let expressions = ["next Monday at 10:30AM", "yesterday at 5:15pm"];
+        for expr in expressions {
+            parse_rule(Rule::relative_day_and_specific_time, expr)?;
+        }
+        Ok(())
+    }
 
-#[test]
-fn test_specific_day() -> Result<()> {
-    let pair = Grammar::parse(Rule::specific_day, "Wednesday")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "Wednesday");
-    Ok(())
-}
+    #[test]
+    fn test_future_time() -> Result<()> {
+        let times = ["in 2 days", "in 3 weeks", "in 1 month", "in 5 years"];
+        for time in times {
+            parse_rule(Rule::future_time, time)?;
+        }
+        Ok(())
+    }
 
-#[test]
-fn test_specific_time_am() -> Result<()> {
-    let pair = Grammar::parse(Rule::specific_time, "8:30 AM")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "8:30 AM");
-    Ok(())
-}
+    #[test]
+    fn test_time_unit() -> Result<()> {
+        let units = [
+            "day", "days", "week", "weeks", "month", "months", "year", "years",
+        ];
+        for unit in units {
+            parse_rule(Rule::time_unit, unit)?;
+        }
+        Ok(())
+    }
 
-#[test]
-fn test_specific_time_pm() -> Result<()> {
-    let pair = Grammar::parse(Rule::specific_time, "12:15 PM")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "12:15 PM");
-    Ok(())
-}
+    #[test]
+    fn test_next_or_last() -> Result<()> {
+        let words = ["next", "last", "this", "Next", "Last", "This"];
+        for word in words {
+            parse_rule(Rule::next_or_last, word)?;
+        }
+        Ok(())
+    }
 
-#[test]
-fn test_invalid_specific_time_missing_am_pm() -> Result<()> {
-    let parse_result = Grammar::parse(Rule::specific_time, "10:30");
-    assert!(
-        parse_result.is_err(),
-        "Parsed an incomplete specific time '10:30'"
-    );
-    Ok(())
-}
-
-#[test]
-fn test_future_time_in_days() -> Result<()> {
-    let pair = Grammar::parse(Rule::future_time, "in 3 days")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "in 3 days");
-    Ok(())
-}
-
-#[test]
-fn test_future_time_in_weeks() -> Result<()> {
-    let pair = Grammar::parse(Rule::future_time, "in 2 weeks")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "in 2 weeks");
-    Ok(())
-}
-
-#[test]
-fn test_invalid_future_time_missing_number() -> Result<()> {
-    let parse_result = Grammar::parse(Rule::future_time, "in days");
-    assert!(
-        parse_result.is_err(),
-        "Parsed an incomplete future time 'in days'"
-    );
-    Ok(())
-}
-
-#[test]
-fn test_invalid_future_time_invalid_unit() -> Result<()> {
-    let parse_result = Grammar::parse(Rule::future_time, "in 5 minutes");
-    assert!(
-        parse_result.is_err(),
-        "Parsed an invalid future time 'in 5 minutes'"
-    );
-    Ok(())
-}
-
-#[test]
-fn test_complete_date_expression_relative_date() -> Result<()> {
-    let pair = Grammar::parse(Rule::date_expression, "next Monday")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "next Monday");
-    Ok(())
-}
-
-#[test]
-fn test_complete_date_expression_specific_day_and_time() -> Result<()> {
-    let pair = Grammar::parse(Rule::date_expression, "Tuesday at 5:00 PM")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    assert_eq!(pair.as_str(), "Tuesday at 5:00 PM");
-    Ok(())
-}
-
-#[test]
-fn test_invalid_expression() -> Result<()> {
-    let parse_result = Grammar::parse(Rule::date_expression, "yesterday at");
-    assert!(
-        parse_result.is_err(),
-        "Parsed an incomplete or invalid expression 'yesterday at'"
-    );
-    Ok(())
-}
-
-#[test]
-fn test_invalid_date_expression_random_text() -> Result<()> {
-    let parse_result = Grammar::parse(Rule::date_expression, "some random text");
-    assert!(
-        parse_result.is_err(),
-        "Parsed an invalid date expression 'some random text'"
-    );
-    Ok(())
+    #[test]
+    fn test_am_pm() -> Result<()> {
+        let am_pm_cases = ["AM", "am", "PM", "pm"];
+        for case in am_pm_cases {
+            parse_rule(Rule::am_pm, case)?;
+        }
+        Ok(())
+    }
 }

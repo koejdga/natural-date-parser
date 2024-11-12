@@ -1,20 +1,109 @@
+/// Whitespace or tab
 WHITESPACE = _{ " " | "\t" }
 
-date_expression = { SOI ~ (relative_date | relative_term | specific_day_and_time | specific_day | specific_time | future_time) ~ EOI }
+/// Parses a full date expression, which could be a relative date, 
+/// specific day and time, or a future time phrase.
+/// - Examples: "next Monday", "tomorrow at 3:00 PM", "in 2 days"
+date_expression = { SOI ~ (relative_day_and_specific_time | relative_date | relative_term | specific_day_and_time | specific_day | specific_time | future_time ) ~ EOI }
 
-relative_date = { (next_or_last ~ specific_day) }
-relative_term = { "tomorrow" | "today" | "yesterday" }
+/// Parses relative day expressions combined with specific times, such as 
+/// "tomorrow at 4:00 PM".
+relative_day_and_specific_time = { ( relative_date | relative_term ) ~ "at" ~ specific_time }
+
+/// Parses expressions for relative dates, for example, "next Tuesday" or "last Friday".
+relative_date = { next_or_last ~ specific_day }
+
+/// Parses terms representing days relative to today, including "tomorrow", 
+/// "today", and "yesterday".
+relative_term = { tomorrow | today | yesterday }
+
+/// Parses expressions that specify both a day and a time, for example, "Wednesday 
+/// at 5:00 AM".
 specific_day_and_time = { specific_day ~ "at" ~ specific_time }
-specific_day = { "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday" }
+
+/// Parses specific days of the week, with case-insensitive options.
+specific_day = { monday | tuesday | wednesday | thursday | friday | saturday | sunday }
+
+/// Parses a specific time expression, including hour, minute, and AM/PM 
+/// notation.
 specific_time = { hour ~ ":" ~ minute ~ am_pm }
-future_time = { "in" ~ duration }
 
-next_or_last = { "next" | "last" | "this" }
+/// Parses future time expressions, such as "in 3 days" or "in 2 weeks".
+future_time = { "in" ~ number ~ time_unit }
 
+/// Matches relative terms for dates, allowing "next", "last", and "this" 
+/// qualifiers.
+next_or_last = { next | last | this }
+
+/// Parses a valid hour value as a sequence of digits.
 hour = { ASCII_DIGIT+ }
-minute = { ASCII_DIGIT+ }
-am_pm = { "AM" | "PM" }
 
-duration = { number ~ time_unit }
+/// Parses a valid minute value as a sequence of digits.
+minute = { ASCII_DIGIT+ }
+
+/// Parses AM/PM markers, with case-insensitive options.
+am_pm = { am | pm }
+
+/// Parses a sequence of digits representing a number for time units.
 number = { ASCII_DIGIT+ }
-time_unit = { "days" | "day" | "weeks" | "week" | "months" | "month" | "years" | "year" }
+
+/// Matches time unit expressions in singular or plural form (for example, "day" or 
+/// "days").
+time_unit = { day_s | week_s | month_s | year_s }
+
+/// Day of the week: Monday or monday (case-insensitive).
+monday = { "Monday" | "monday" }
+
+/// Day of the week: Tuesday or tuesday (case-insensitive).
+tuesday = { "Tuesday" | "tuesday" }
+
+/// Day of the week: Wednesday or wednesday (case-insensitive).
+wednesday = { "Wednesday" | "wednesday" }
+
+/// Day of the week: Thursday or thursday (case-insensitive).
+thursday = { "Thursday" | "thursday" }
+
+/// Day of the week: Friday or friday (case-insensitive).
+friday = { "Friday" | "friday" }
+
+/// Day of the week: Saturday or saturday (case-insensitive).
+saturday = { "Saturday" | "saturday" }
+
+/// Day of the week: Sunday or sunday (case-insensitive).
+sunday = { "Sunday" | "sunday" }
+
+/// Relative term: Tomorrow or tomorrow (case-insensitive).
+tomorrow = { "Tomorrow" | "tomorrow" }
+
+/// Relative term: Today or today (case-insensitive).
+today = { "Today" | "today" }
+
+/// Relative term: Yesterday or yesterday (case-insensitive).
+yesterday = { "Yesterday" | "yesterday" }
+
+/// Relative direction term: Next or next (case-insensitive).
+next = { "Next" | "next" }
+
+/// Relative direction term: This or this (case-insensitive).
+this = { "This" | "this" }
+
+/// Relative direction term: Last or last (case-insensitive).
+last = { "Last" | "last" }
+
+/// Time of day marker: AM or am (case-insensitive).
+am = { "AM" | "am" }
+
+/// Time of day marker: PM or pm (case-insensitive).
+pm = { "PM" | "pm" }
+
+/// Singular or plural form of "day".
+day_s = { "days" | "day" }
+
+/// Singular or plural form of "week".
+week_s = { "weeks" | "week" }
+
+/// Singular or plural form of "month".
+month_s = { "months" | "month" }
+
+/// Singular or plural form of "year".
+year_s = { "years" | "year" }

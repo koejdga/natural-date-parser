@@ -1,6 +1,12 @@
 # Natural Date Parser
 
+Crates: https://crates.io/crates/iCalendar_parser
+
+Docs: https://docs.rs/iCalendar_parser/latest/iCalendar_parser/all.html
+
 ## Brief Description
+
+Name: natural-date-parser
 
 A parser that converts natural language date and time expressions into Rust-compatible DateTime formats.
 
@@ -19,11 +25,30 @@ The parser is built using the [Pest](https://pest.rs/) parsing library and is de
 
 ### How It Works
 
-The parsing process follows these steps:
+The parsing rules:
 
-1. **Tokenization and Grammar Definition**: The parser uses Pest to define grammar rules for recognizing date keywords (e.g., "next," "last"), day names (e.g., "Monday," "Sunday"), and time phrases (e.g., "at 5 PM").
-2. **Mapping to Date Components**: Once the input text is parsed, it is converted into date and time components, such as days, months, and hours. These components are passed to Rust’s `chrono` library to calculate the exact `DateTime` value.
-3. **Error Handling**: If an unrecognized phrase is entered, the parser provides an error message guiding the user to valid inputs.
+```
+date_expression = { SOI ~ (relative_day_and_specific_time | relative_date | relative_term | specific_day_and_time | specific_day | specific_time | future_time ) ~ EOI }
+
+relative_day_and_specific_time = { ( relative_date | relative_term ) ~ "at" ~ specific_time }
+
+relative_date         = { next_or_last ~ specific_day }
+relative_term         = { tomorrow | today | yesterday }
+specific_day_and_time = { specific_day ~ "at" ~ specific_time }
+
+specific_day   = { monday | tuesday | wednesday | thursday | friday | saturday | sunday }
+specific_time  = { hour ~ ":" ~ minute ~ am_pm }
+future_time    = { "in" ~ number ~ time_unit }
+
+next_or_last = { next | last | this }
+
+hour   = { ASCII_DIGIT+ }
+minute = { ASCII_DIGIT+ }
+am_pm  = { am | pm }
+
+number    = { ASCII_DIGIT+ }
+time_unit = { day_s | week_s | month_s | year_s }
+```
 
 ### Use Cases
 
@@ -39,14 +64,4 @@ To start using **Natural Date Parser**, you can use [crate](https://crates.io/cr
 
 ### Example Usage
 
-```rust
-fn main() -> anyhow::Result<()> {
-    let pair = Grammar::parse(Rule::date_expression, "next Monday")?
-        .next()
-        .ok_or_else(|| anyhow!("no pair"))?;
-    dbg!(pair);
-    Ok(())
-}
-```
-
-![alt text](image.png)
+![alt text](<profile (unoptimized + debuginfo) target(s) in 0.01s.png>)

@@ -1,6 +1,6 @@
 [package]
 name = "natural-date-parser"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 license = "MIT"
 description = "A parser that converts natural language date and time expressions into Rust-compatible DateTime formats."
@@ -8,5 +8,8 @@ description = "A parser that converts natural language date and time expressions
 
 [dependencies]
 anyhow = "1.0.93"
+chrono = "0.4.38"
+chronoutil = "0.2.7"
 pest = "2.7.14"
 pest_derive = "2.7.14"
+thiserror = "2.0.3"
