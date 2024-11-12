@@ -1,8 +1,7 @@
 # Natural Date Parser
 
-Crates: https://crates.io/crates/iCalendar_parser
-
-Docs: https://docs.rs/iCalendar_parser/latest/iCalendar_parser/all.html
+- Crates: https://crates.io/crates/natural-date-parser
+- Docs: https://docs.rs/natural-date-parser/0.1.1/natural_date_parser/
 
 ## Brief Description
 
