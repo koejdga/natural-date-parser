@@ -26,7 +26,7 @@ specific_day = { monday | tuesday | wednesday | thursday | friday | saturday | s
 
 /// Parses a specific time expression, including hour, minute, and AM/PM 
 /// notation.
-specific_time = { hour ~ ":" ~ minute ~ am_pm }
+specific_time = { hour ~ ":" ~ minute ~ am_pm | hour ~ am_pm }
 
 /// Parses future time expressions, such as "in 3 days" or "in 2 weeks".
 future_time = { "in" ~ number ~ time_unit }

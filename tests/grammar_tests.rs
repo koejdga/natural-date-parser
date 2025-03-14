@@ -156,6 +156,7 @@ mod tests {
             "Monday at 10:00 AM",
             "Wednesday at 5:30 PM",
             "Friday at 12:45 PM",
+            "Sunday at 5 PM",
         ];
 
         for case in &valid_cases {
@@ -166,7 +167,6 @@ mod tests {
 
         let invalid_cases = vec![
             "Monday 10:00 AM",
-            "Sunday at 5 PM",
             "at 10:00 AM",
             "Thursday at five PM",
             "Holiday at 10:00 AM",
