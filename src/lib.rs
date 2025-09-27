@@ -27,6 +27,8 @@ pub mod date_parser {
     /// This function takes a date string, parses it using the `pest` parser, and returns the
     /// resulting `DateTime<Local>` if successful, or an error if the string cannot be parsed.
     ///
+    /// The reference date is automatically assumed to be Local::now().
+    ///
     /// # Arguments
     /// * `string` - The string to be parsed as a date.
     ///
@@ -34,13 +36,35 @@ pub mod date_parser {
     /// * `Result<DateTime<Local>, ParseDateError>` - A `DateTime<Local>` if parsing is successful,
     ///   or a `ParseDateError` if there was an issue.
     pub fn from_string(string: &str) -> Result<DateTime<Local>, ParseDateError> {
+        from_string_with_reference(string, Local::now())
+    }
+
+    /// Parses a string representing a date and returns the corresponding `DateTime<Local>`.
+    ///
+    /// This function takes a date string, parses it using the `pest` parser, and returns the
+    /// resulting `DateTime<Local>` if successful, or an error if the string cannot be parsed.
+    ///
+    /// You specify a reference date from which to calculate relative dates. This allows for
+    /// easier testing and better use in multi-timezone setups.
+    ///
+    /// # Arguments
+    /// * `string` - The string to be parsed as a date.
+    /// * `reference_date` - The DateTime representing "now", a moment from which relative dates and times will be calculated.
+    ///
+    /// # Returns
+    /// * `Result<DateTime<Local>, ParseDateError>` - A `DateTime<Local>` if parsing is successful,
+    ///   or a `ParseDateError` if there was an issue.
+    pub fn from_string_with_reference(
+        string: &str,
+        reference_date: DateTime<Local>,
+    ) -> Result<DateTime<Local>, ParseDateError> {
         let pairs = DateParser::parse(Rule::date_expression, string)
             .map_err(|e| ParseDateError::ParseError(e.to_string()))?;
 
         if let Some(pair) = pairs.clone().next() {
             match pair.as_rule() {
                 Rule::date_expression => {
-                    let datetime = process_date_expression(pair)?;
+                    let datetime = process_date_expression(pair, reference_date)?;
                     return Ok(datetime);
                 }
                 _ => {
@@ -58,16 +82,16 @@ pub mod date_parser {
 
     pub fn process_date_expression(
         pair: Pair<'_, Rule>,
+        datetime: DateTime<Local>,
     ) -> Result<DateTime<Local>, ParseDateError> {
-        let datetime = Local::now();
         for inner_pair in pair.into_inner() {
             match inner_pair.as_rule() {
                 Rule::relative_date => {
-                    let parsed = process_relative_date(inner_pair)?;
+                    let parsed = process_relative_date(inner_pair, datetime)?;
                     return Ok(parsed);
                 }
                 Rule::relative_term => {
-                    let parsed = process_relative_term(inner_pair)?;
+                    let parsed = process_relative_term(inner_pair, datetime)?;
                     return Ok(parsed);
                 }
                 Rule::specific_time => {
@@ -81,15 +105,15 @@ pub mod date_parser {
                     }
                 }
                 Rule::specific_day_and_time => {
-                    let parsed = process_specific_day_and_time(inner_pair)?;
+                    let parsed = process_specific_day_and_time(inner_pair, datetime)?;
                     return Ok(parsed);
                 }
                 Rule::relative_day_and_specific_time => {
-                    let parsed = process_relative_day_and_specific_time(inner_pair)?;
+                    let parsed = process_relative_day_and_specific_time(inner_pair, datetime)?;
                     return Ok(parsed);
                 }
                 Rule::future_time => {
-                    let parsed = process_future_time(inner_pair)?;
+                    let parsed = process_future_time(inner_pair, datetime)?;
                     return Ok(parsed);
                 }
                 _ => {
@@ -105,8 +129,10 @@ pub mod date_parser {
         ))
     }
 
-    pub fn process_future_time(pair: Pair<'_, Rule>) -> Result<DateTime<Local>, ParseDateError> {
-        let mut datetime = Local::now();
+    pub fn process_future_time(
+        pair: Pair<'_, Rule>,
+        mut datetime: DateTime<Local>,
+    ) -> Result<DateTime<Local>, ParseDateError> {
         let mut duration = 0;
         let mut unit: Option<Rule> = None;
 
@@ -154,8 +180,8 @@ pub mod date_parser {
 
     pub fn process_specific_day_and_time(
         pair: Pair<'_, Rule>,
+        mut datetime: DateTime<Local>,
     ) -> Result<DateTime<Local>, ParseDateError> {
-        let mut datetime = Local::now();
         for inner_pair in pair.into_inner() {
             match inner_pair.as_rule() {
                 Rule::specific_day => {
@@ -177,15 +203,15 @@ pub mod date_parser {
 
     pub fn process_relative_day_and_specific_time(
         pair: Pair<'_, Rule>,
+        mut datetime: DateTime<Local>,
     ) -> Result<DateTime<Local>, ParseDateError> {
-        let mut datetime = Local::now();
         for inner_pair in pair.into_inner() {
             match inner_pair.as_rule() {
                 Rule::relative_date => {
-                    datetime = process_relative_date(inner_pair)?;
+                    datetime = process_relative_date(inner_pair, datetime)?;
                 }
                 Rule::relative_term => {
-                    datetime = process_relative_term(inner_pair)?;
+                    datetime = process_relative_term(inner_pair, datetime)?;
                 }
                 Rule::specific_time => {
                     datetime = process_specific_time(inner_pair, datetime)?;
@@ -196,8 +222,10 @@ pub mod date_parser {
         Ok(datetime)
     }
 
-    pub fn process_relative_date(pair: Pair<'_, Rule>) -> Result<DateTime<Local>, ParseDateError> {
-        let datetime = Local::now();
+    pub fn process_relative_date(
+        pair: Pair<'_, Rule>,
+        datetime: DateTime<Local>,
+    ) -> Result<DateTime<Local>, ParseDateError> {
         let inner_pairs: Vec<_> = pair.clone().into_inner().collect();
 
         if inner_pairs.len() == 2 {
@@ -239,9 +267,10 @@ pub mod date_parser {
         }
     }
 
-    pub fn process_relative_term(pair: Pair<'_, Rule>) -> Result<DateTime<Local>, ParseDateError> {
-        let datetime = Local::now();
-
+    pub fn process_relative_term(
+        pair: Pair<'_, Rule>,
+        datetime: DateTime<Local>,
+    ) -> Result<DateTime<Local>, ParseDateError> {
         if let Some(inner_pair) = pair.clone().into_inner().next() {
             match inner_pair.as_rule() {
                 Rule::tomorrow => {
