@@ -4,7 +4,7 @@ WHITESPACE = _{ " " | "\t" }
 /// Parses a full date expression, which could be a relative date,
 /// specific day and time, or a future time phrase.
 /// - Examples: "next Monday", "tomorrow at 3:00 PM", "in 2 days"
-date_expression = { SOI ~ (relative_day_and_specific_time | relative_date | relative_term | specific_day_and_time | specific_day | specific_time | future_time) ~ EOI }
+date_expression = { SOI ~ (relative_day_and_specific_time | relative_date | relative_term | specific_date_and_time | specific_day_and_time | specific_date | specific_day | specific_time | future_time) ~ EOI }
 
 /// Parses relative day expressions combined with specific times, such as
 /// "tomorrow at 4:00 PM".
@@ -21,8 +21,18 @@ relative_term = { tomorrow | today | yesterday }
 /// at 5:00 AM".
 specific_day_and_time = { specific_day ~ ^"at" ~ specific_time }
 
+/// Parses expressions that specify both a date and a time, for example, "2025.01.25
+/// at 5:00 AM".
+specific_date_and_time = { specific_date ~ ^"at" ~ specific_time }
+
 /// Parses specific days of the week, with case-insensitive options.
 specific_day = { monday | tuesday | wednesday | thursday | friday | saturday | sunday }
+
+/// What can be used as date separator.
+date_sep = { "-" | "." | "/" }
+
+/// Parses a specific date expression, including year, month, and day.
+specific_date = { year ~ date_sep ~ (month | month_name | month_short_name) ~ date_sep ~ day }
 
 /// Parses a specific time expression, including hour, minute, and AM/PM
 /// notation.
@@ -34,6 +44,21 @@ future_time = { ^"in" ~ number ~ time_unit }
 /// Matches relative terms for dates, allowing "next", "last", and "this"
 /// qualifiers.
 next_or_last = { next | last | this }
+
+/// Parses a valid year value as a sequence of digits.
+year = @{ ASCII_DIGIT+ }
+
+/// Parses a valid month value as a sequence of digits.
+month = @{ ASCII_DIGIT+ }
+
+/// Parses a valid month value as a string month name.
+month_name = { ^"january" | ^"february" | ^"march" | ^"april" | ^"may" | ^"june" | ^"july" | ^"august" | ^"september" | ^"october" | ^"november" | ^"december" }
+
+/// Parses a valid month value as a shortened month name.
+month_short_name = { ^"jan" | ^"feb" | ^"mar" | ^"apr" | ^"may" | ^"jun" | ^"jul" | ^"aug" | ^"sep" | ^"sept" | ^"oct" | ^"nov" | ^"dec" }
+
+/// Parses a valid day value as a sequence of digits.
+day = @{ ASCII_DIGIT+ }
 
 /// Parses a valid hour value as a sequence of digits.
 hour = @{ ASCII_DIGIT+ }
