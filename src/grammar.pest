@@ -36,16 +36,16 @@ future_time = { ^"in" ~ number ~ time_unit }
 next_or_last = { next | last | this }
 
 /// Parses a valid hour value as a sequence of digits.
-hour = { ASCII_DIGIT+ }
+hour = @{ ASCII_DIGIT+ }
 
 /// Parses a valid minute value as a sequence of digits.
-minute = { ASCII_DIGIT+ }
+minute = @{ ASCII_DIGIT+ }
 
 /// Parses AM/PM markers, with case-insensitive options.
 am_pm = { am | pm }
 
 /// Parses a sequence of digits representing a number for time units.
-number = { ASCII_DIGIT+ }
+number = @{ ASCII_DIGIT+ }
 
 /// Matches time unit expressions in singular or plural form (for example, "day" or
 /// "days").
