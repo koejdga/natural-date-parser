@@ -8,7 +8,7 @@ date_expression = { SOI ~ (relative_day_and_specific_time | relative_date | rela
 
 /// Parses relative day expressions combined with specific times, such as
 /// "tomorrow at 4:00 PM".
-relative_day_and_specific_time = { (relative_date | relative_term) ~ "at" ~ specific_time }
+relative_day_and_specific_time = { (relative_date | relative_term) ~ ^"at" ~ specific_time }
 
 /// Parses expressions for relative dates, for example, "next Tuesday" or "last Friday".
 relative_date = { next_or_last ~ specific_day }
@@ -19,7 +19,7 @@ relative_term = { tomorrow | today | yesterday }
 
 /// Parses expressions that specify both a day and a time, for example, "Wednesday
 /// at 5:00 AM".
-specific_day_and_time = { specific_day ~ "at" ~ specific_time }
+specific_day_and_time = { specific_day ~ ^"at" ~ specific_time }
 
 /// Parses specific days of the week, with case-insensitive options.
 specific_day = { monday | tuesday | wednesday | thursday | friday | saturday | sunday }
@@ -29,7 +29,7 @@ specific_day = { monday | tuesday | wednesday | thursday | friday | saturday | s
 specific_time = { hour ~ ":" ~ minute ~ am_pm | hour ~ am_pm }
 
 /// Parses future time expressions, such as "in 3 days" or "in 2 weeks".
-future_time = { "in" ~ number ~ time_unit }
+future_time = { ^"in" ~ number ~ time_unit }
 
 /// Matches relative terms for dates, allowing "next", "last", and "this"
 /// qualifiers.
@@ -52,64 +52,64 @@ number = { ASCII_DIGIT+ }
 time_unit = _{ minute_s | hour_s | day_s | week_s | month_s | year_s }
 
 /// Day of the week: Monday or monday (case-insensitive).
-monday = { "Monday" | "monday" }
+monday = { ^"monday" }
 
 /// Day of the week: Tuesday or tuesday (case-insensitive).
-tuesday = { "Tuesday" | "tuesday" }
+tuesday = { ^"tuesday" }
 
 /// Day of the week: Wednesday or wednesday (case-insensitive).
-wednesday = { "Wednesday" | "wednesday" }
+wednesday = { ^"wednesday" }
 
 /// Day of the week: Thursday or thursday (case-insensitive).
-thursday = { "Thursday" | "thursday" }
+thursday = { ^"thursday" }
 
 /// Day of the week: Friday or friday (case-insensitive).
-friday = { "Friday" | "friday" }
+friday = { ^"friday" }
 
 /// Day of the week: Saturday or saturday (case-insensitive).
-saturday = { "Saturday" | "saturday" }
+saturday = { ^"saturday" }
 
 /// Day of the week: Sunday or sunday (case-insensitive).
-sunday = { "Sunday" | "sunday" }
+sunday = { ^"sunday" }
 
 /// Relative term: Tomorrow or tomorrow (case-insensitive).
-tomorrow = { "Tomorrow" | "tomorrow" }
+tomorrow = { ^"tomorrow" }
 
 /// Relative term: Today or today (case-insensitive).
-today = { "Today" | "today" }
+today = { ^"today" }
 
 /// Relative term: Yesterday or yesterday (case-insensitive).
-yesterday = { "Yesterday" | "yesterday" }
+yesterday = { ^"yesterday" }
 
 /// Relative direction term: Next or next (case-insensitive).
-next = { "Next" | "next" }
+next = { ^"next" }
 
 /// Relative direction term: This or this (case-insensitive).
-this = { "This" | "this" }
+this = { ^"this" }
 
 /// Relative direction term: Last or last (case-insensitive).
-last = { "Last" | "last" }
+last = { ^"last" }
 
 /// Time of day marker: AM or am (case-insensitive).
-am = { "AM" | "am" }
+am = { ^"am" }
 
 /// Time of day marker: PM or pm (case-insensitive).
-pm = { "PM" | "pm" }
+pm = { ^"pm" }
 
 /// Singular or plural form of "minute".
-minute_s = { "minutes" | "minute" }
+minute_s = { ^"minutes" | ^"minute" }
 
 /// Singular or plural form of "hour".
-hour_s = { "hours" | "hour" }
+hour_s = { ^"hours" | ^"hour" }
 
 /// Singular or plural form of "day".
-day_s = { "days" | "day" }
+day_s = { ^"days" | ^"day" }
 
 /// Singular or plural form of "week".
-week_s = { "weeks" | "week" }
+week_s = { ^"weeks" | ^"week" }
 
 /// Singular or plural form of "month".
-month_s = { "months" | "month" }
+month_s = { ^"months" | ^"month" }
 
 /// Singular or plural form of "year".
-year_s = { "years" | "year" }
+year_s = { ^"years" | ^"year" }
