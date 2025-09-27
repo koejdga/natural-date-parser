@@ -1,5 +1,4 @@
-use pest_derive::Parser;
-use thiserror::Error;
+use {pest_derive::Parser, thiserror::Error};
 
 /// A parser for date-related expressions using the `pest` parser library.
 #[derive(Parser)]
@@ -16,11 +15,12 @@ pub enum ParseDateError {
 
 /// Module for parsing and processing date-related expressions.
 pub mod date_parser {
-    use crate::{DateParser, ParseDateError, Rule};
-    use chrono::{DateTime, Datelike, Duration, Local, TimeZone, Weekday};
-    use chronoutil::delta::shift_months_opt;
-    use pest::iterators::Pair;
-    use pest::Parser;
+    use {
+        crate::{DateParser, ParseDateError, Rule},
+        chrono::{DateTime, Datelike, Duration, Local, TimeZone, Weekday},
+        chronoutil::delta::shift_months_opt,
+        pest::{Parser, iterators::Pair},
+    };
 
     /// Parses a string representing a date and returns the corresponding `DateTime<Local>`.
     ///
