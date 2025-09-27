@@ -263,7 +263,7 @@ mod tests {
                 .next()
                 .unwrap();
 
-            let result = process_relative_term(pair);
+            let result = process_relative_term(pair, Local::now());
             assert!(result.is_ok());
             assert_eq!(result.as_ref().unwrap().year(), expected_datetime.year());
             assert_eq!(result.as_ref().unwrap().month(), expected_datetime.month());
@@ -314,7 +314,7 @@ mod tests {
                 .next()
                 .unwrap();
 
-            let result = process_relative_date(pair);
+            let result = process_relative_date(pair, Local::now());
             println!("res {:#?}", result);
             assert!(result.is_ok());
 
