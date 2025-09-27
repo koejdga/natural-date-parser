@@ -49,7 +49,7 @@ number = { ASCII_DIGIT+ }
 
 /// Matches time unit expressions in singular or plural form (for example, "day" or
 /// "days").
-time_unit = { day_s | week_s | month_s | year_s }
+time_unit = _{ day_s | week_s | month_s | year_s }
 
 /// Day of the week: Monday or monday (case-insensitive).
 monday = { "Monday" | "monday" }
