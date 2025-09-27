@@ -4,7 +4,8 @@ version = "0.1.3"
 edition = "2021"
 license = "MIT"
 description = "A parser that converts natural language date and time expressions into Rust-compatible DateTime formats."
-
+authors = ["Sofiia Budilova <https://github.com/koejdga>"]
+repository = "https://github.com/koejdga/natural-date-parser"
 
 [dependencies]
 anyhow = "1.0.93"
