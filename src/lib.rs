@@ -143,7 +143,7 @@ pub mod date_parser {
                         ParseDateError::ParseError("Invalid duration value".to_string())
                     })?;
                 }
-                Rule::time_unit => {
+                Rule::day_s | Rule::week_s | Rule::month_s | Rule::year_s => {
                     unit = Some(inner_pair.as_rule());
                 }
                 _ => {
