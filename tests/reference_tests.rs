@@ -3,6 +3,30 @@ mod tests {
     use {chrono::prelude::*, natural_date_parser::date_parser};
 
     #[test]
+    fn test_in_15_minutes() {
+        assert_eq!(
+            date_parser::from_string_with_reference(
+                "in 15 minutes",
+                Local.with_ymd_and_hms(2025, 9, 7, 21, 0, 0).unwrap()
+            )
+            .unwrap(),
+            Local.with_ymd_and_hms(2025, 9, 7, 21, 15, 0).unwrap()
+        )
+    }
+
+    #[test]
+    fn test_in_1_hour() {
+        assert_eq!(
+            date_parser::from_string_with_reference(
+                "in 1 hour",
+                Local.with_ymd_and_hms(2025, 9, 7, 21, 0, 0).unwrap()
+            )
+            .unwrap(),
+            Local.with_ymd_and_hms(2025, 9, 7, 22, 0, 0).unwrap()
+        )
+    }
+
+    #[test]
     fn test_in_3_days() {
         assert_eq!(
             date_parser::from_string_with_reference(
