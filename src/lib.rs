@@ -94,6 +94,14 @@ pub mod date_parser {
                     let parsed = process_relative_term(inner_pair, datetime)?;
                     return Ok(parsed);
                 }
+                Rule::specific_date_and_time => {
+                    let parsed = process_specific_date_and_time(inner_pair, datetime)?;
+                    return Ok(parsed);
+                }
+                Rule::specific_date => {
+                    let parsed = process_specific_date(inner_pair, datetime)?;
+                    return Ok(parsed);
+                }
                 Rule::specific_time => {
                     let parsed = process_specific_time(inner_pair, datetime)?;
                     return Ok(parsed);
@@ -118,7 +126,7 @@ pub mod date_parser {
                 }
                 _ => {
                     return Err(ParseDateError::ParseError(
-                        "Unexpected rule encountered".to_string(),
+                        "Unexpected rule encountered in date expression".to_string(),
                     ));
                 }
             }
@@ -183,6 +191,29 @@ pub mod date_parser {
                 "Time unit not provided".to_string(),
             ))
         }
+    }
+
+    pub fn process_specific_date_and_time(
+        pair: Pair<'_, Rule>,
+        mut datetime: DateTime<Local>,
+    ) -> Result<DateTime<Local>, ParseDateError> {
+        for inner_pair in pair.into_inner() {
+            match inner_pair.as_rule() {
+                Rule::specific_date => {
+                    datetime = process_specific_date(inner_pair, datetime)?;
+                }
+                Rule::specific_time => {
+                    datetime = process_specific_time(inner_pair, datetime)?;
+                }
+                _ => {
+                    return Err(ParseDateError::ParseError(format!(
+                        "Unexpected rule in specific date and time: {:?}",
+                        inner_pair.as_rule()
+                    )));
+                }
+            }
+        }
+        Ok(datetime)
     }
 
     pub fn process_specific_day_and_time(
@@ -316,19 +347,24 @@ pub mod date_parser {
             match inner_pair.as_rule() {
                 Rule::hour => {
                     hour = inner_pair.as_str().parse::<u32>().map_err(|e| {
-                        ParseDateError::ParseError(format!("Failed to parse hour: {}", e))
+                        ParseDateError::ParseError(format!(
+                            "Failed to parse hour '{}': {e}",
+                            inner_pair.as_str()
+                        ))
                     })?;
 
                     if hour > 23 {
                         return Err(ParseDateError::ParseError(format!(
-                            "Invalid hour: {:?}",
-                            hour
+                            "Invalid hour: {hour:?}"
                         )));
                     }
                 }
                 Rule::minute => {
                     minute = inner_pair.as_str().parse::<u32>().map_err(|e| {
-                        ParseDateError::ParseError(format!("Failed to parse minute: {}", e))
+                        ParseDateError::ParseError(format!(
+                            "Failed to parse minute '{}': {e}",
+                            inner_pair.as_str()
+                        ))
                     })?;
                 }
                 Rule::am_pm => {
@@ -355,6 +391,62 @@ pub mod date_parser {
         Ok(modified_datetime)
     }
 
+    pub fn process_specific_date(
+        pair: Pair<'_, Rule>,
+        datetime: DateTime<Local>,
+    ) -> Result<DateTime<Local>, ParseDateError> {
+        let mut year: i32 = 0;
+        let mut month: u32 = 0;
+        let mut day: u32 = 0;
+
+        // Iterate through inner pairs to capture year, month, day
+        for inner_pair in pair.clone().into_inner() {
+            match inner_pair.as_rule() {
+                Rule::date_sep => {}
+                Rule::year => {
+                    year = inner_pair.as_str().parse::<i32>().map_err(|e| {
+                        ParseDateError::ParseError(format!("Failed to parse year: {e}"))
+                    })?;
+                }
+                Rule::month => {
+                    month = inner_pair.as_str().parse::<u32>().map_err(|e| {
+                        ParseDateError::ParseError(format!("Failed to parse month: {e}"))
+                    })?;
+                }
+                Rule::month_name => {
+                    month = process_month_name(inner_pair.as_str()).map_err(|e| {
+                        ParseDateError::ParseError(format!("Failed to parse month name: {e}"))
+                    })?;
+                }
+                Rule::month_short_name => {
+                    month = process_month_name(inner_pair.as_str()).map_err(|e| {
+                        ParseDateError::ParseError(format!("Failed to parse short month: {e}"))
+                    })?;
+                }
+                Rule::day => {
+                    day = inner_pair.as_str().parse::<u32>().map_err(|e| {
+                        ParseDateError::ParseError(format!(
+                            "Failed to parse day '{}': {e}",
+                            inner_pair.as_str()
+                        ))
+                    })?;
+                }
+                _ => {
+                    return Err(ParseDateError::ParseError(format!(
+                        "Unexpected rule {inner_pair:?} in specific_date"
+                    )));
+                }
+            }
+        }
+
+        datetime
+            .with_year(year)
+            .and_then(|dt| dt.with_month(month).and_then(|dt| dt.with_day(day)))
+            .ok_or(ParseDateError::ParseError(format!(
+                "Invalid date: {pair:?}"
+            )))
+    }
+
     pub fn process_specific_day(
         rule: Rule,
         datetime: DateTime<Local>,
@@ -375,8 +467,32 @@ pub mod date_parser {
         Ok(target_date)
     }
 
-    pub fn process_weekday(day: Rule) -> Result<Weekday, ParseDateError> {
-        match day {
+    pub fn process_month_name(month: &str) -> Result<u32, ParseDateError> {
+        let n = month.trim().to_ascii_lowercase();
+
+        Ok(match n.as_str() {
+            "jan" | "january" => 1,
+            "feb" | "february" => 2,
+            "mar" | "march" => 3,
+            "apr" | "april" => 4,
+            "may" => 5,
+            "jun" | "june" => 6,
+            "jul" | "july" => 7,
+            "aug" | "august" => 8,
+            "sep" | "sept" | "september" => 9,
+            "oct" | "october" => 10,
+            "nov" | "november" => 11,
+            "dec" | "december" => 12,
+            _ => {
+                return Err(ParseDateError::ParseError(format!(
+                    "Invalid month name: {month:?}"
+                )));
+            }
+        })
+    }
+
+    pub fn process_weekday(day_of_week: Rule) -> Result<Weekday, ParseDateError> {
+        match day_of_week {
             Rule::monday => Ok(Weekday::Mon),
             Rule::tuesday => Ok(Weekday::Tue),
             Rule::wednesday => Ok(Weekday::Wed),
@@ -386,7 +502,7 @@ pub mod date_parser {
             Rule::sunday => Ok(Weekday::Sun),
             _ => Err(ParseDateError::ParseError(format!(
                 "Invalid weekday: {:?}",
-                day
+                day_of_week
             ))),
         }
     }
