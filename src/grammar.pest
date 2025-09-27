@@ -49,7 +49,7 @@ number = { ASCII_DIGIT+ }
 
 /// Matches time unit expressions in singular or plural form (for example, "day" or
 /// "days").
-time_unit = _{ day_s | week_s | month_s | year_s }
+time_unit = _{ minute_s | hour_s | day_s | week_s | month_s | year_s }
 
 /// Day of the week: Monday or monday (case-insensitive).
 monday = { "Monday" | "monday" }
@@ -95,6 +95,12 @@ am = { "AM" | "am" }
 
 /// Time of day marker: PM or pm (case-insensitive).
 pm = { "PM" | "pm" }
+
+/// Singular or plural form of "minute".
+minute_s = { "minutes" | "minute" }
+
+/// Singular or plural form of "hour".
+hour_s = { "hours" | "hour" }
 
 /// Singular or plural form of "day".
 day_s = { "days" | "day" }

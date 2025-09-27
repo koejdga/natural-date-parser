@@ -143,7 +143,12 @@ pub mod date_parser {
                         ParseDateError::ParseError("Invalid duration value".to_string())
                     })?;
                 }
-                Rule::day_s | Rule::week_s | Rule::month_s | Rule::year_s => {
+                Rule::minute_s
+                | Rule::hour_s
+                | Rule::day_s
+                | Rule::week_s
+                | Rule::month_s
+                | Rule::year_s => {
                     unit = Some(inner_pair.as_rule());
                 }
                 _ => {
@@ -154,6 +159,8 @@ pub mod date_parser {
 
         if let Some(unit) = unit {
             datetime = match unit {
+                Rule::minute_s => datetime + Duration::minutes(duration as i64),
+                Rule::hour_s => datetime + Duration::hours(duration as i64),
                 Rule::day_s => datetime + Duration::days(duration as i64),
                 Rule::week_s => datetime + Duration::weeks(duration as i64),
                 Rule::month_s => shift_months_opt(datetime, duration).ok_or_else(|| {
