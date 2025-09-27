@@ -1,37 +1,37 @@
 /// Whitespace or tab
 WHITESPACE = _{ " " | "\t" }
 
-/// Parses a full date expression, which could be a relative date, 
+/// Parses a full date expression, which could be a relative date,
 /// specific day and time, or a future time phrase.
 /// - Examples: "next Monday", "tomorrow at 3:00 PM", "in 2 days"
-date_expression = { SOI ~ (relative_day_and_specific_time | relative_date | relative_term | specific_day_and_time | specific_day | specific_time | future_time ) ~ EOI }
+date_expression = { SOI ~ (relative_day_and_specific_time | relative_date | relative_term | specific_day_and_time | specific_day | specific_time | future_time) ~ EOI }
 
-/// Parses relative day expressions combined with specific times, such as 
+/// Parses relative day expressions combined with specific times, such as
 /// "tomorrow at 4:00 PM".
-relative_day_and_specific_time = { ( relative_date | relative_term ) ~ "at" ~ specific_time }
+relative_day_and_specific_time = { (relative_date | relative_term) ~ "at" ~ specific_time }
 
 /// Parses expressions for relative dates, for example, "next Tuesday" or "last Friday".
 relative_date = { next_or_last ~ specific_day }
 
-/// Parses terms representing days relative to today, including "tomorrow", 
+/// Parses terms representing days relative to today, including "tomorrow",
 /// "today", and "yesterday".
 relative_term = { tomorrow | today | yesterday }
 
-/// Parses expressions that specify both a day and a time, for example, "Wednesday 
+/// Parses expressions that specify both a day and a time, for example, "Wednesday
 /// at 5:00 AM".
 specific_day_and_time = { specific_day ~ "at" ~ specific_time }
 
 /// Parses specific days of the week, with case-insensitive options.
 specific_day = { monday | tuesday | wednesday | thursday | friday | saturday | sunday }
 
-/// Parses a specific time expression, including hour, minute, and AM/PM 
+/// Parses a specific time expression, including hour, minute, and AM/PM
 /// notation.
 specific_time = { hour ~ ":" ~ minute ~ am_pm | hour ~ am_pm }
 
 /// Parses future time expressions, such as "in 3 days" or "in 2 weeks".
 future_time = { "in" ~ number ~ time_unit }
 
-/// Matches relative terms for dates, allowing "next", "last", and "this" 
+/// Matches relative terms for dates, allowing "next", "last", and "this"
 /// qualifiers.
 next_or_last = { next | last | this }
 
@@ -47,7 +47,7 @@ am_pm = { am | pm }
 /// Parses a sequence of digits representing a number for time units.
 number = { ASCII_DIGIT+ }
 
-/// Matches time unit expressions in singular or plural form (for example, "day" or 
+/// Matches time unit expressions in singular or plural form (for example, "day" or
 /// "days").
 time_unit = { day_s | week_s | month_s | year_s }
 
