@@ -8,9 +8,9 @@ authors = ["Sofiia Budilova <https://github.com/koejdga>"]
 repository = "https://github.com/koejdga/natural-date-parser"
 
 [dependencies]
-anyhow = "1.0.93"
-chrono = "0.4.38"
+anyhow = "1.0.100"
+chrono = "0.4.42"
 chronoutil = "0.2.7"
-pest = "2.7.14"
-pest_derive = "2.7.14"
-thiserror = "2.0.3"
+pest = "2.8.2"
+pest_derive = "2.8.2"
+thiserror = "2.0.16"
