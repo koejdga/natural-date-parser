@@ -271,7 +271,6 @@ pub mod date_parser {
         pair: Pair<'_, Rule>,
         datetime: DateTime<Local>,
     ) -> Result<DateTime<Local>, ParseDateError> {
-        println!("some print");
         let mut hour: u32 = 0;
         let mut minute: u32 = 0;
         let mut is_pm = false;
@@ -312,7 +311,6 @@ pub mod date_parser {
         if is_pm && hour < 12 {
             hour += 12;
         } else if !is_pm && hour == 12 {
-            println!("here");
             hour = 0;
         }
 
@@ -424,7 +422,7 @@ pub mod date_parser {
             )));
         }
 
-        println!("days_difference {:?}", days_difference);
+        // println!("days_difference {:?}", days_difference);
 
         Ok(now + Duration::days(days_difference as i64))
     }
